@@ -2,13 +2,13 @@ package repositorio;
 
 import java.util.List;
 
-public interface CrudRepositorio<Producto> {
+public interface CrudRepositorio<T> {
 
-    List<Producto> listar();
+    List<T> listar();
 
-    Producto guardar(Producto producto);
+    T guardar(T t);
 
-    Producto buscarPorId(Integer id);
+    T buscarPorId(Integer id);
 
     void eliminar(Integer id);
 }
