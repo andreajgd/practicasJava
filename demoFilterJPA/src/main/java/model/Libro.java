@@ -1,5 +1,7 @@
 package model;
 
+import config.IRestrictiva;
+import config.Restrictiva;
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
@@ -9,7 +11,8 @@ import java.io.Serializable;
 @Entity
 @NamedQuery(name = "Libro.all", query = "select e from Libro e")
 @Table(name = "Libro")
-public class Libro extends BaseEntity implements IRestrictiva{
+@Restrictiva(campo= "restrictiva", value= "false")
+public class Libro extends BaseEntity implements IRestrictiva {
     private String name;
     private String isbn;
     private boolean restrictiva;
