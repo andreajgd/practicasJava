@@ -27,7 +27,7 @@ public class InspectorStatement implements StatementInspector {
         }
 
         // Extraer alias de tablas filtrables
-        Map<String, String> tablasYAlias = extraerTablasYAlias(lowerSql);
+        Map<String, Filtro> tablasYAlias = extraerTablasYAlias(lowerSql);
 
         if (tablasYAlias.isEmpty()) {
             return sql;
@@ -35,7 +35,9 @@ public class InspectorStatement implements StatementInspector {
 
         // Construir filtros
         List<String> filtros = new ArrayList<>();
-        tablasYAlias.forEach((tabla, alias) -> filtros.add(alias + ".restrictiva = false"));
+        tablasYAlias.forEach((tabla, alias) ->
+                filtros.add(alias + ".idUsuario = " + Global.IDUSUARIO)
+        );
         String filtroFinal = "(" + String.join(" AND ", filtros) + ")";
 
         // Insertar filtro antes de ORDER BY o OFFSET
@@ -61,14 +63,18 @@ public class InspectorStatement implements StatementInspector {
         return sql;
     }
 
-    private Map<String, String> extraerTablasYAlias(String lowerSql) {
-        Map<String, String> resultado = new LinkedHashMap<>();
+    //TABLA -> ALIAS, RECORD DE CAMPO
+    private Map<String, Filtro> extraerTablasYAlias(String lowerSql) {
+        Map<String, Filtro> resultado = new LinkedHashMap<>();
         Matcher matcher = FROM_JOIN_PATTERN.matcher(lowerSql);
         while (matcher.find()) {
             String tabla = matcher.group(2).toLowerCase();
             String alias = matcher.group(3);
             if (FilterEntityRestrictiva.siFilter(tabla)) {
-                resultado.put(tabla, alias);
+                resultado.put(tabla,
+                        //KEY -> TABLA, VALOR->(CAMPO,VALUE){RECORD CAMPO}
+                        new Filtro(alias,
+                        FilterEntityRestrictiva.getSizeFilterTable().get(tabla)));
             }
         }
         return resultado;
