@@ -1,18 +1,27 @@
 package model;
 
-import config.FilterEntityRestrictiva;
+import config.IUsuario;
+import config.RestrictionType;
+import config.RestrictivaUsuario;
 import jakarta.persistence.*;
-import jdk.jfr.Name;
 
 @Entity
-@NamedQuery(name = "Ventas.all", query = "select e from Ventas e")
-public class Ventas extends BaseEntity {
-    @ManyToOne(fetch = FetchType.LAZY) //muchas instancias de esta entidad pueden estar asociadas a un solo Usuario.
-    @JoinColumn(name = "idUsuario", referencedColumnName = "id")
-    private Usuario usuario;
-    private String producto;
-    private String venta;
+@NamedQuery(
+        name="Ventas.all",query = "select e from Ventas e"
+)
+@RestrictivaUsuario(
+        campo = "idUsuario"
+        ,tipo = RestrictionType.CURRENT_USER
+)
+public class Ventas extends BaseEntity implements IUsuario {
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="idUsuario",referencedColumnName = "id")
+    private Usuario usuario;
+
+    private String producto;
+
+    private double totalVenta;
 
     public String getProducto() {
         return producto;
@@ -20,14 +29,6 @@ public class Ventas extends BaseEntity {
 
     public void setProducto(String producto) {
         this.producto = producto;
-    }
-
-    public String getVenta() {
-        return venta;
-    }
-
-    public void setVenta(String venta) {
-        this.venta = venta;
     }
 
     public Usuario getUsuario() {
@@ -38,12 +39,19 @@ public class Ventas extends BaseEntity {
         this.usuario = usuario;
     }
 
+    public double getTotalVenta() {
+        return totalVenta;
+    }
+
+    public void setTotalVenta(double totalVenta) {
+        this.totalVenta = totalVenta;
+    }
+
     @Override
     public String toString() {
         return "Ventas{" +
-                "usuario=" + usuario +
-                ", producto='" + producto + '\'' +
-                ", venta='" + venta + '\'' +
+                "producto='" + producto + '\'' +
+                ", totalVenta=" + totalVenta +
                 '}';
     }
 }
