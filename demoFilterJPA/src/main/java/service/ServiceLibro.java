@@ -2,7 +2,7 @@ package service;
 
 import model.Libro;
 
-public class serviceLibro extends ImplDAO{
+public class ServiceLibro extends ImplDAO{
 
     public void delete(String id) {
         Libro libro = super.findById(id,Libro.class);
