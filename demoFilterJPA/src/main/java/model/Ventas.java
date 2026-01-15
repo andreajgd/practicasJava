@@ -47,6 +47,8 @@ public class Ventas extends BaseEntity implements IUsuario {
         this.totalVenta = totalVenta;
     }
 
+
+
     @Override
     public String toString() {
         return "Ventas{" +
