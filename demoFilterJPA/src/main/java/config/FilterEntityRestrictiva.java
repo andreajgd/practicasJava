@@ -17,7 +17,8 @@ public class FilterEntityRestrictiva {
         for (EntityType<?> entity : metamodel.getEntities()) {
             Class<?> javaType = entity.getJavaType();
             if (javaType.isAnnotationPresent(RestrictivaUsuario.class))  {
-                Table table = javaType.getAnnotation(RestrictivaUsuario.class).tipo();
+                String campo = javaType.getAnnotation(RestrictivaUsuario.class).campo();
+                RestrictionType restrictionType = javaType.getAnnotation(RestrictivaUsuario.class).tipo();
                 String value = javaType.getAnnotation(RestrictivaUsuario.class).valor();
                 Table table = javaType.getAnnotation(Table.class);
                 if (table != null && !table.name().isBlank()) {
@@ -25,7 +26,7 @@ public class FilterEntityRestrictiva {
                             , new Campo(campo,restrictionType,value) );
                 }
                 else {
-                    FILTERED_TABLES.put(javaType.getSimpleName.toLowerCase(),
+                    FILTERED_TABLES.put(javaType.getSimpleName().toLowerCase(),
                             new Campo(campo,restrictionType,value));
                 }
             }
