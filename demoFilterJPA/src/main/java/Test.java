@@ -1,58 +1,72 @@
-import model.Autor;
-import model.Libro;
+import config.Global;
+import config.SecurityContext;
 import model.Usuario;
 import model.Ventas;
-import service.IDAO;
+import model.Autor;
 import service.ImplDAO;
-import service.serviceLibro;
+import java.util.List;
 
 public class Test {
-    public static void deleteAutor() {
-        ImplDAO dao = new ImplDAO();
-        dao.delete("a3a7c00e-17b3-4403-a5e5-bf48edc2646d",Autor.class);
-    }
-
-    public static void crearAutor(){
-        ImplDAO implDAO = new ImplDAO();
-        Autor autor = new Autor();
-        autor.setNombre("Norman");
-        autor.setApellido("Cash");
-        implDAO.insert(autor);
-    }
-
-    public static void handleLibro(){
-        serviceLibro serviceLibro = new serviceLibro();
-        /*Libro libro = new Libro();
-        libro.setName("Azul");
-        libro.setIsbn("234234dr23");*/
-        Libro libro = serviceLibro.findById("40c8a155-bdfa-475d-86fe-c0f3ef2e7102",Libro.class);
-        serviceLibro.delete(libro.getId());
-        //serviceLibro.update(libro);
-        serviceLibro.getAll("Libro.all",Libro.class)
-                .forEach(u-> System.out.println(u));
-    }
-
-    public static void crearUsuario(){
-        ImplDAO implDAO = new ImplDAO();
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Norman");
-        usuario.setApellido("Cash");
-        implDAO.insert(usuario);
-    }
-
-    public static void vender(Usuario usuario, String producto, double cantidad){
-        ImplDAO implDAO = new ImplDAO();
-        Ventas ventas = new Ventas();
-        ventas.setUsuario(usuario);
-        ventas.setProducto(producto);
-        ventas.setVenta(venta);
-    }
-
     public static void main(String[] args) {
-        crearUsuario();
+        ImplDAO dao = new ImplDAO();
 
-        //simular login
-        ImplDAO implDAO = new ImplDAO();
-        Usuario usuario = implDAO.findById("Ventas.all", Ventas.class).forEach;
+        Usuario usuario1 = crearUsuario("Karen", "Bonilla", dao);
+        Usuario usuario2 = crearUsuario("Wilfredo", "Gómez", dao);
+
+        //datos para ambos
+        crearDatosParaUsuario(usuario1, dao);
+        crearDatosParaUsuario(usuario2, dao);
+
+
+        System.out.println("\n1.Juan hace Login");
+        Global.IDUSUARIO = usuario1.getId();
+
+        System.out.println("Consultando Ventas:");
+        List<Ventas> ventasJuan = dao.getAll("Ventas.all", Ventas.class);
+        System.out.println("Resultados: " + ventasJuan.size());
+        ventasJuan.forEach(v -> System.out.println(" - " + v.getProducto()));
+
+        System.out.println("\nUsuario:");
+        List<Usuario> usuariosJuan = dao.getAll("Usuario.all", Usuario.class);
+        System.out.println("Resultados: " + usuariosJuan.size());
+
+        System.out.println("\n2. María hace Login");
+        config.SecurityContext.setCurrentUser(usuario2.getId());
+
+        System.out.println("Consultando Ventas: ");
+        List<Ventas> ventasMaria = dao.getAll("Ventas.all", Ventas.class);
+        System.out.println("Resultados: " + ventasMaria.size());
+        ventasMaria.forEach(v -> System.out.println(" - " + v.getProducto()));
+
+        System.out.println("\nUsuario:");
+        List<Usuario> usuariosMaria = dao.getAll("Usuario.all", Usuario.class);
+        System.out.println("Resultados: " + usuariosMaria.size());
+    }
+
+    public static Usuario crearUsuario(String nombre, String apellido, ImplDAO dao) {
+        Usuario usuario = new Usuario();
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        dao.insert(usuario);
+        System.out.println("Usuario creado: " + nombre + " " + apellido +
+                " (ID: " + usuario.getId() + ")");
+        return usuario;
+    }
+
+    public static void crearDatosParaUsuario(Usuario usuario, ImplDAO dao) {
+        //Crear ventas
+        for (int i = 1; i <= 2; i++) {
+            Ventas venta = new Ventas();
+            venta.setUsuario(usuario);
+            venta.setProducto("Producto " + i + " de " + usuario.getNombre());
+            venta.setTotalVenta(100 * i);
+            dao.insert(venta);
+        }
+
+        //Crear autor
+        Autor autor = new Autor();
+        autor.setNombre("Autor " + usuario.getNombre());
+        autor.setApellido(usuario.getApellido());
+        dao.insert(autor);
     }
 }
