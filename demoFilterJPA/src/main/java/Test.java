@@ -1,4 +1,3 @@
-import config.Global;
 import config.SecurityContext;
 import model.Usuario;
 import model.Ventas;
@@ -10,37 +9,34 @@ public class Test {
     public static void main(String[] args) {
         ImplDAO dao = new ImplDAO();
 
-        Usuario usuario1 = crearUsuario("Karen", "Bonilla", dao);
-        Usuario usuario2 = crearUsuario("Wilfredo", "Gómez", dao);
+        //lista de usuarios
+        Usuario[] usuarios = {
+                crearUsuario("UsuarioA", "ApellidoA", dao),
+                crearUsuario("UsuarioB", "ApellidoB", dao),
+                crearUsuario("UsuarioC", "ApellidoC", dao)
+        };
 
-        //datos para ambos
-        crearDatosParaUsuario(usuario1, dao);
-        crearDatosParaUsuario(usuario2, dao);
+        //datos cada usuario
+        for (Usuario usuario : usuarios) {
+            crearDatosParaUsuario(usuario, dao);
+        }
 
+        //filtro dinámico con cada usuario
+        for (int i = 0; i < usuarios.length; i++) {
+            Usuario usuario = usuarios[i];
+            System.out.println("\n=== Usuario " + (i+1) + " hace Login (" +
+                    usuario.getNombre() + ") ===");
 
-        System.out.println("\n1.Juan hace Login");
-        Global.IDUSUARIO = usuario1.getId();
+            SecurityContext.setCurrentUser(usuario.getId());
 
-        System.out.println("Consultando Ventas:");
-        List<Ventas> ventasJuan = dao.getAll("Ventas.all", Ventas.class);
-        System.out.println("Resultados: " + ventasJuan.size());
-        ventasJuan.forEach(v -> System.out.println(" - " + v.getProducto()));
+            System.out.println("Consultando Ventas:");
+            List<Ventas> ventas = dao.getAll("Ventas.all", Ventas.class);
+            System.out.println("Resultados: " + ventas.size());
 
-        System.out.println("\nUsuario:");
-        List<Usuario> usuariosJuan = dao.getAll("Usuario.all", Usuario.class);
-        System.out.println("Resultados: " + usuariosJuan.size());
-
-        System.out.println("\n2. María hace Login");
-        config.SecurityContext.setCurrentUser(usuario2.getId());
-
-        System.out.println("Consultando Ventas: ");
-        List<Ventas> ventasMaria = dao.getAll("Ventas.all", Ventas.class);
-        System.out.println("Resultados: " + ventasMaria.size());
-        ventasMaria.forEach(v -> System.out.println(" - " + v.getProducto()));
-
-        System.out.println("\nUsuario:");
-        List<Usuario> usuariosMaria = dao.getAll("Usuario.all", Usuario.class);
-        System.out.println("Resultados: " + usuariosMaria.size());
+            System.out.println("Consultando Usuarios:");
+            List<Usuario> listaUsuarios = dao.getAll("Usuario.all", Usuario.class);
+            System.out.println("Resultados: " + listaUsuarios.size());
+        }
     }
 
     public static Usuario crearUsuario(String nombre, String apellido, ImplDAO dao) {
