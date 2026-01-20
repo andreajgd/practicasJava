@@ -4,10 +4,10 @@ import org.hibernate.resource.jdbc.spi.StatementInspector;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class InspectorStatement implements StatementInspector {
 
@@ -33,25 +33,13 @@ public class InspectorStatement implements StatementInspector {
             return sql;
         }
 
-        // Construir filtros
-        List<String> filtros = new ArrayList<>();
-        tablasYAlias.forEach((tabla, filtro) -> {
+        //filtros
+        String filtroFinal = tablasYAlias.entrySet()
+                .stream()  //conversion de Set<Map.Entry> en stream
+                .map(FiltroUsuario.construirFiltro)  // Aplicamos la función a cada entrada
+                .collect(Collectors.joining(" AND "));  // Unimos con "AND"
 
-            Campo campo = filtro.campo();
-            String alias = filtro.alias();
-
-            switch (campo.restrictionType()) {
-
-                case CURRENT_USER ->
-                        filtros.add(alias + "." + campo.nombre() + " = " + SecurityContext.getCurrentUser());
-
-                case BOOLEAN ->
-                        filtros.add(alias + "." + campo.nombre() + " = " + campo.value());
-            }
-        });
-
-        String filtroFinal = "(" + String.join(" AND ", filtros) + ")";
-
+        filtroFinal = "(" + filtroFinal + ")";
 
         // Insertar filtro antes de ORDER BY o OFFSET
         int posOrderBy = lowerSql.indexOf(" order by");
